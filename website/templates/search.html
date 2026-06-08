@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - CineMatch AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="/">
+                    <i class="fas fa-film"></i>
+                    <span>CineMatch AI</span>
+                </a>
+            </div>
+
+            <div class="nav-search">
+                <form action="/search" method="GET">
+                    <input
+                        type="text"
+                        name="q"
+                        placeholder="Search movies, genres, directors..."
+                        value="{{ query }}"
+                        class="nav-search-input"
+                    >
+                    <button type="submit" aria-label="Search movies">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="back-button">
+            <a href="/" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+
+        <div class="search-header">
+            <div class="recommendation-badge">
+                <span>🔍 AI Movie Search Engine</span>
+            </div>
+
+            <h1><i class="fas fa-search"></i> Search Results</h1>
+            <p>
+                Found <strong>{{ results|length }}</strong> movie(s)
+                matching "<strong>{{ query }}</strong>"
+            </p>
+        </div>
+
+        <div class="movies-grid">
+            {% for movie in results %}
+            <div class="movie-card">
+                <div class="movie-card-inner">
+
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+
+                    <div class="movie-details">
+                        <span class="movie-genre">
+                            <i class="fas fa-tag"></i>
+                            {{ movie.genres.split(',')[0] if movie.genres else 'N/A' }}
+                        </span>
+
+                        <span class="movie-rating">
+                            <i class="fas fa-star"></i> {{ movie.rating }}
+                        </span>
+
+                        <span class="movie-duration">
+                            <i class="fas fa-clock"></i>
+                            {{ (movie.duration // 60) if movie.duration else '?' }}h
+                            {{ (movie.duration % 60) if movie.duration else '?' }}m
+                        </span>
+                    </div>
+
+                    <div class="movie-director">
+                        <i class="fas fa-user"></i>
+                        {{ movie.director.split(',')[0] if movie.director != 'Unknown' else 'Various Artists' }}
+                    </div>
+
+                    <form action="/recommend" method="GET" class="movie-action">
+                        <input type="hidden" name="title" value="{{ movie.title }}">
+                        <button type="submit" class="btn-sm">
+                            <i class="fas fa-magic"></i> Explore Similar
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not results %}
+        <div class="empty-state">
+            <i class="fas fa-search"></i>
+
+            <h3>No movies found for "{{ query }}"</h3>
+
+            <p>
+                Try searching by movie title, genre, or director name.
+            </p>
+
+            <div class="genre-buttons genre-buttons-spacing">
+                <a href="/genre/Action" class="genre-btn">Action</a>
+                <a href="/genre/Comedy" class="genre-btn">Comedy</a>
+                <a href="/genre/Drama" class="genre-btn">Drama</a>
+                <a href="/genre/Horror" class="genre-btn">Horror</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <footer class="footer">
+            <p>&copy; 2026 CineMatch AI | Smart Movie Discovery Platform powered by Machine Learning.</p>
+        </footer>
+
+    </div>
+</body>
+</html>

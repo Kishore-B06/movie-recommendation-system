@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMatch AI - Movie Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-film"></i>
+                <span>CineMatch AI</span>
+            </div>
+
+            <div class="nav-search">
+                <form action="/search" method="GET">
+                    <input type="text" name="q" placeholder="Search movies, directors..." class="nav-search-input">
+                    <button type="submit" aria-label="Search movies">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <header class="hero">
+            <div class="hero-badge">
+                <span>AI-Powered Movie Discovery</span>
+            </div>
+            <h1>Discover Movies That Match Your Taste</h1>
+            <p>Find similar movies using content-based filtering, TF-IDF vectorization, and cosine similarity.</p>
+        </header>
+
+        <div class="card recommendation-card">
+            <h2><i class="fas fa-magic"></i> Get Smart Recommendations</h2>
+            <form action="/recommend" method="GET" class="recommend-form">
+                <div class="form-group">
+                    <label for="movieSelect">Select a movie you already like:</label>
+                    <select name="title" id="movieSelect" required>
+                        <option value="">-- Choose a movie --</option>
+                        {% for movie in all_movies %}
+                        <option value="{{ movie }}">{{ movie }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-star"></i> Find Similar Movies
+                </button>
+            </form>
+        </div>
+
+        {% if error %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <section class="movies-section">
+            <div class="section-header">
+                <h2><i class="fas fa-fire"></i> Popular Picks</h2>
+                <a href="/search?q=" class="view-all">Explore Movies <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="movies-grid">
+                {% for movie in popular_movies %}
+                <div class="movie-card">
+                    <div class="movie-card-inner">
+                        <h3 class="movie-title">{{ movie.title }}</h3>
+
+                        <div class="movie-details">
+                            <span class="movie-genre">
+                                <i class="fas fa-tag"></i>
+                                {{ movie.genres.split(',')[0] if movie.genres else 'N/A' }}
+                            </span>
+
+                            <span class="movie-rating">
+                                <i class="fas fa-star"></i> {{ movie.rating }}
+                            </span>
+
+                            <span class="movie-duration">
+                                <i class="fas fa-clock"></i>
+                                {{ (movie.duration // 60) if movie.duration else '?' }}h
+                                {{ (movie.duration % 60) if movie.duration else '?' }}m
+                            </span>
+                        </div>
+
+                        <div class="movie-director">
+                            <i class="fas fa-user"></i>
+                            {{ movie.director.split(',')[0] if movie.director != 'Unknown' else 'Various Artists' }}
+                        </div>
+
+                        <form action="/recommend" method="GET" class="movie-action">
+                            <input type="hidden" name="title" value="{{ movie.title }}">
+                            <button type="submit" class="btn-sm">
+                                <i class="fas fa-magic"></i> Similar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="genre-section">
+            <div class="section-header">
+                <h2><i class="fas fa-theater-masks"></i> Explore by Genre</h2>
+            </div>
+
+            <div class="genre-buttons">
+                <a href="/genre/Action" class="genre-btn"><i class="fas fa-fist-raised"></i> Action</a>
+                <a href="/genre/Comedy" class="genre-btn"><i class="fas fa-laugh"></i> Comedy</a>
+                <a href="/genre/Drama" class="genre-btn"><i class="fas fa-mask"></i> Drama</a>
+                <a href="/genre/Horror" class="genre-btn"><i class="fas fa-ghost"></i> Horror</a>
+                <a href="/genre/Sci-Fi" class="genre-btn"><i class="fas fa-rocket"></i> Sci-Fi</a>
+                <a href="/genre/Romance" class="genre-btn"><i class="fas fa-heart"></i> Romance</a>
+                <a href="/genre/Thriller" class="genre-btn"><i class="fas fa-skull"></i> Thriller</a>
+                <a href="/genre/Animation" class="genre-btn"><i class="fas fa-dragon"></i> Animation</a>
+                <a href="/genre/Documentary" class="genre-btn"><i class="fas fa-video"></i> Documentary</a>
+                <a href="/genre/Crime" class="genre-btn"><i class="fas fa-gavel"></i> Crime</a>
+                <a href="/genre/Fantasy" class="genre-btn"><i class="fas fa-hat-wizard"></i> Fantasy</a>
+                <a href="/genre/Mystery" class="genre-btn"><i class="fas fa-question-circle"></i> Mystery</a>
+            </div>
+        </section>
+
+        <section class="project-info">
+            <h2><i class="fas fa-brain"></i> How CineMatch AI Works</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <i class="fas fa-database"></i>
+                    <h3>Clean Movie Data</h3>
+                    <p>Movie details such as genres, directors, writers, ratings, and duration are processed before recommendation.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-vector-square"></i>
+                    <h3>TF-IDF Vectorization</h3>
+                    <p>Text-based movie features are converted into numerical vectors for similarity comparison.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-link"></i>
+                    <h3>Cosine Similarity</h3>
+                    <p>The system compares movie vectors and returns the most similar titles based on content similarity.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2026 CineMatch AI | Built by Kishore-B06 using Flask and Machine Learning.</p>
+        </footer>
+    </div>
+</body>
+</html>

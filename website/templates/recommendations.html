@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations for {{ movie_title }} | CineMatch AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="/">
+                    <i class="fas fa-film"></i>
+                    <span>CineMatch AI</span>
+                </a>
+            </div>
+
+            <div class="nav-search">
+                <form action="/search" method="GET">
+                    <input type="text" name="q" placeholder="Search movies, directors..." class="nav-search-input">
+                    <button type="submit" aria-label="Search movies">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="back-button">
+            <a href="/" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+
+        <div class="recommendation-header">
+            <div class="recommendation-badge">
+                <span>✨ Content-Based Similarity Results</span>
+            </div>
+
+            <h1>Movies similar to <span class="highlight">{{ movie_title }}</span></h1>
+            <p>Recommendations are generated using TF-IDF feature matching and cosine similarity.</p>
+        </div>
+
+        <div class="movies-grid">
+            {% for movie in recommendations %}
+            <div class="movie-card">
+                <div class="movie-card-inner">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+
+                    <div class="movie-details">
+                        <span class="movie-genre">
+                            <i class="fas fa-tag"></i>
+                            {{ movie.genres.split(',')[0] if movie.genres else 'N/A' }}
+                        </span>
+
+                        <span class="movie-rating">
+                            <i class="fas fa-star"></i> {{ movie.rating }}
+                        </span>
+
+                        <span class="movie-duration">
+                            <i class="fas fa-clock"></i>
+                            {{ (movie.duration // 60) if movie.duration else '?' }}h
+                            {{ (movie.duration % 60) if movie.duration else '?' }}m
+                        </span>
+                    </div>
+
+                    <div class="movie-director">
+                        <i class="fas fa-user"></i>
+                        {{ movie.director.split(',')[0] if movie.director != 'Unknown' else 'Various Artists' }}
+                    </div>
+
+                    <div class="movie-similarity">
+                        <i class="fas fa-chart-line"></i>
+                        Match Score: {{ (movie.similarity * 100) | int }}%
+                    </div>
+
+                    <form action="/recommend" method="GET" class="movie-action">
+                        <input type="hidden" name="title" value="{{ movie.title }}">
+                        <button type="submit" class="btn-sm">
+                            <i class="fas fa-magic"></i> Explore Similar
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not recommendations %}
+        <div class="empty-state">
+            <i class="fas fa-film"></i>
+            <h3>No recommendations found</h3>
+            <p>Try selecting a different movie from the homepage.</p>
+            <a href="/" class="btn btn-primary">Back to Home</a>
+        </div>
+        {% endif %}
+
+        <footer class="footer">
+            <p>&copy; 2026 CineMatch AI | Built by Kishore-B06 using Flask and Machine Learning.</p>
+        </footer>
+    </div>
+</body>
+</html>
